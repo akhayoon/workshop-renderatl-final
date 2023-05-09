@@ -1,4 +1,5 @@
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
+import { Item, ItemsState } from "../../types";
 import {
   Modal,
   TextField,
@@ -7,15 +8,16 @@ import {
   VerticalStack,
 } from "@shopify/polaris";
 import { useForm, useField, submitSuccess } from "@shopify/react-form";
+import ItemsContext from "../../context/ItemsContext";
 
 interface CreateCustomerModalProps {
   open: boolean;
   onClose: () => void;
-  onPixelCreate: (name: string, location: string) => void;
 }
 
 export function CreateCustomerModal(props: CreateCustomerModalProps) {
-  const { open, onClose, onPixelCreate } = props;
+  const { open, onClose} = props;
+  const { addItem } = useContext(ItemsContext) as ItemsState;;
 
   const { submit, fields, submitting, dirty, reset, submitErrors, makeClean } = useForm({
     fields: {
@@ -33,7 +35,15 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
       }
 
       try {
-        onPixelCreate(name.value, location.value);
+        const newItem: Item = {
+          id: Date.now().toString(), // or another method of generating unique IDs
+          isPrimary: false,
+          url: "#",
+          name: name.value,
+          location: location.value,
+        };
+
+        addItem(newItem);
         closeModal();
         return submitSuccess();
       } catch (error: any) {
@@ -57,7 +67,7 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
     <Modal
       open={open}
       onClose={closeModal}
-      title="Create a New Pixel"
+      title="Create a New Customer"
       primaryAction={{
         content: "Create",
         onAction: submit,
@@ -78,12 +88,12 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
           <Form onSubmit={submit}>
             <FormLayout>
               <TextField
-                label="Pixel Name"
+                label="Name"
                 autoComplete="off"
                 {...fields.name}
               />
               <TextField
-                label="Pixel Location"
+                label="Location"
                 autoComplete="off"
                 {...fields.location}
               />

@@ -6,16 +6,12 @@ import {
   FooterHelp,
   TextField,
   Icon,
-  ResourceList,
-  Modal,
-  TextContainer,
   Banner,
-  VerticalStack,
-  LegacyCard,
 } from "@shopify/polaris";
 import { GlobeMajor, SearchMinor } from "@shopify/polaris-icons";
-import {CreateCustomerModal} from "./components/CreateCustomerModal";
-import {CustomerList} from "./components/CustomerList";
+import { CreateCustomerModal } from "./components/CreateCustomerModal";
+import { CustomerList } from "./components/CustomerList";
+import { ItemsProvider } from "./context/ItemsContext";
 
 const iconWrapper = (
   Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>
@@ -23,26 +19,9 @@ const iconWrapper = (
   return () => <Icon />;
 };
 
-const initialItems = [
-  {
-    id: "100",
-    url: "#",
-    name: "Mae Jemison",
-    location: "Decatur, USA",
-  },
-  {
-    id: "200",
-    url: "#",
-    name: "Ellen Ochoa",
-    location: "Los Angeles, USA",
-  },
-];
-
 export default function App() {
-  const [showCreatePixelModal, setShowCreatePixelModal] = useState(false);
+  const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [items, setItems] = useState(initialItems);
-  const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(true);
 
   const handleBannerDismiss = () => {
@@ -50,13 +29,13 @@ export default function App() {
   };
 
   const handleCloseModal = useCallback(
-    () => setShowCreatePixelModal(false),
-    [setShowCreatePixelModal]
+    () => setShowCreateCustomerModal(false),
+    [setShowCreateCustomerModal]
   );
 
   const primaryAction = {
-    content: "New Pixel",
-    onAction: () => setShowCreatePixelModal(true),
+    content: "New Customer",
+    onAction: () => setShowCreateCustomerModal(true),
   };
 
   const secondaryActions = [
@@ -68,42 +47,8 @@ export default function App() {
     },
   ];
 
-  const handlePixelCreate = useCallback(
-    (name: string, location: string) => {
-      const id = Math.max(...items.map((item) => +item.id)) + 1;
-      const newPixel = {
-        id: id.toString(),
-        url: "#",
-        name: name,
-        location: location,
-      };
-      setItems((items) => [...items, newPixel]);
-      handleCloseModal();
-    },
-    [handleCloseModal, items]
-  );
-
   const handleSearch = useCallback((value: string) => {
     setSearchValue(value);
-    const filteredItems = initialItems.filter((item) =>
-      item.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setItems(filteredItems);
-  }, [initialItems]);
-
-  const handleDeleteClick = useCallback((id: string) => {
-    setDeleteItemId(id);
-  }, []);
-
-  const handleDeleteConfirm = useCallback(() => {
-    if (deleteItemId) {
-      setItems((items) => items.filter((item) => item.id !== deleteItemId));
-    }
-    setDeleteItemId(null);
-  }, [deleteItemId]);
-
-  const handleDeleteCancel = useCallback(() => {
-    setDeleteItemId(null);
   }, []);
 
   const filterControl = (
@@ -118,67 +63,41 @@ export default function App() {
   );
 
   return (
-    <Page
-      title="Polaris"
-      primaryAction={primaryAction}
-      secondaryActions={secondaryActions}
-    >
-      <Layout>
-        <Layout.Section>
-          {showBanner &&
-            <Banner
-              title="USPS has updated their rates"
-              action={{content: 'Update rates', url: ''}}
-              secondaryAction={{content: 'Learn more'}}
-              status="info"
-              onDismiss={handleBannerDismiss}
-            >
-              <p>Make sure you know how these changes affect your store.</p>
-            </Banner>
-          }
-        </Layout.Section>
-        <Layout.Section>
-          <CustomerList items={items} filterControl={filterControl} onDeleteItem={handleDeleteClick} />
-        </Layout.Section>
+    <ItemsProvider>
+      <Page
+        title="Polaris"
+        primaryAction={primaryAction}
+        secondaryActions={secondaryActions}
+      >
+        <Layout>
+          <Layout.Section>
+            {showBanner && (
+              <Banner
+                title="This record cannot be deleted"
+                status="critical"
+                onDismiss={handleBannerDismiss}
+              >
+                <p>Make sure you know how these changes affect your store.</p>
+              </Banner>
+            )}
+          </Layout.Section>
+          <Layout.Section>
+            <CustomerList filterControl={filterControl} />
+          </Layout.Section>
 
-        <Layout.Section>
-          <FooterHelp>
-            For more details on Polaris, visit our{" "}
-            <a href="https://polaris.shopify.com">style guide</a>.
-          </FooterHelp>
-        </Layout.Section>
-      </Layout>
+          <Layout.Section>
+            <FooterHelp>
+              For more details on Polaris, visit our{" "}
+              <a href="https://polaris.shopify.com">style guide</a>.
+            </FooterHelp>
+          </Layout.Section>
+        </Layout>
 
-      <CreateCustomerModal
-        open={showCreatePixelModal}
-        onClose={handleCloseModal}
-        onPixelCreate={handlePixelCreate}
-      />
-
-      {deleteItemId && (
-        <Modal
-          open={!!deleteItemId}
-          onClose={handleDeleteCancel}
-          title="Delete Item"
-          primaryAction={{
-            content: "Delete",
-            destructive: true,
-            onAction: handleDeleteConfirm,
-          }}
-          secondaryActions={[
-            {
-              content: "Cancel",
-              onAction: handleDeleteCancel,
-            },
-          ]}
-        >
-          <Modal.Section>
-            <VerticalStack gap="5">
-              <p>Are you sure you want to delete this item?</p>
-            </VerticalStack>
-            </Modal.Section>
-        </Modal>
-      )}
-    </Page>
+        <CreateCustomerModal
+          open={showCreateCustomerModal}
+          onClose={handleCloseModal}
+        />
+      </Page>
+    </ItemsProvider>
   );
 }

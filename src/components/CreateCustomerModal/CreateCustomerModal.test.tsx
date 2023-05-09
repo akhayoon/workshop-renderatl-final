@@ -20,7 +20,7 @@ describe("<CreateCustomerModal />", () => {
     );
 
     expect(wrapper).toContainReactComponent(Modal, {
-      title: "Create a New Pixel",
+      title: "Create a New Customer",
     });
 
     expect(wrapper).toContainReactComponent(Button, {
@@ -33,11 +33,11 @@ describe("<CreateCustomerModal />", () => {
     });
 
     expect(wrapper).toContainReactComponent(TextField, {
-      label: "Pixel Name",
+      label: "Name",
     });
 
     expect(wrapper).toContainReactComponent(TextField, {
-      label: "Pixel Location",
+      label: "Location",
     });
   });
 
@@ -47,11 +47,11 @@ describe("<CreateCustomerModal />", () => {
     );
 
     wrapper
-      .find(TextField, { label: "Pixel Name" })!
-      .trigger("onChange", "New Pixel");
+      .find(TextField, { label: "Name" })!
+      .trigger("onChange", "New Customer");
 
     wrapper
-      .find(TextField, { label: "Pixel Location" })!
+      .find(TextField, { label: "Location" })!
       .trigger("onChange", "New Location");
 
     expect(wrapper).toContainReactComponent(Button, {
@@ -84,17 +84,17 @@ describe("<CreateCustomerModal />", () => {
     );
 
     wrapper
-      .find(TextField, { label: "Pixel Name" })!
-      .trigger("onChange", "New Pixel");
+      .find(TextField, { label: "Name" })!
+      .trigger("onChange", "New Customer");
 
     wrapper
-      .find(TextField, { label: "Pixel Location" })!
+      .find(TextField, { label: "Location" })!
       .trigger("onChange", "New Location");
 
     wrapper.find(Button, { children: "Create" })!.trigger("onClick");
 
     expect(onPixelCreate).toHaveBeenCalledTimes(1);
-    expect(onPixelCreate).toHaveBeenCalledWith("New Pixel", "New Location");
+    expect(onPixelCreate).toHaveBeenCalledWith("New Customer", "New Location");
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

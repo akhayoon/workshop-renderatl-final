@@ -1,34 +1,54 @@
+import React, { useContext, useState, useCallback } from "react";
 import { LegacyCard, ResourceList } from "@shopify/polaris";
-import {RowItem} from "./RowItem/RowItem";
+import { RowItem } from "./components/RowItem";
+import { DeleteModal } from "./components/DeleteModal";
+import ItemsContext from "../../context/ItemsContext";
+import { ItemsState } from "../../types";
+
 
 interface Props {
-  items: Item[];
   filterControl: React.ReactNode;
-  onDeleteItem: (id: string) => void;
 }
 
-interface Item {
-  id: string;
-  url: string;
-  name: string;
-  location: string;
-}
+export function CustomerList({ filterControl }: Props) {
+  const { items, removeItem } = useContext(ItemsContext) as ItemsState;;
+  const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
 
-export function CustomerList({ items, filterControl, onDeleteItem }: Props) {
+  const handleDeleteClick = useCallback((id: string) => {
+    setDeleteItemId(id);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(() => {
+    if (deleteItemId) {
+      removeItem(deleteItemId); // Use removeItem from the context
+    }
+    setDeleteItemId(null);
+  }, [deleteItemId, removeItem]); // Add removeItem to dependencies
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteItemId(null);
+  }, []);
+
   return (
-    <LegacyCard>
-      <ResourceList
-        resourceName={{ singular: "customer", plural: "customers" }}
-        items={items}
-        renderItem={(item) => (
-          <RowItem
-            item={item}
-            onDeleteItem={onDeleteItem}
-            key={item.id}
-          />
-        )}
-        filterControl={filterControl}
-      />
-    </LegacyCard>
+    <>
+      <LegacyCard>
+        <ResourceList
+          resourceName={{ singular: "customer", plural: "customers" }}
+          items={items}
+          renderItem={(item) => (
+            <RowItem item={item} onDeleteItem={handleDeleteClick} key={item.id} />
+          )}
+          filterControl={filterControl}
+        />
+      </LegacyCard>
+
+      {deleteItemId && (
+        <DeleteModal
+          open={!!deleteItemId}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
+    </>
   );
 }
