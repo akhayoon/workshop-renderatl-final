@@ -1,23 +1,23 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import {
   Modal,
   TextField,
   Form,
   FormLayout,
-  TextContainer,
+  VerticalStack,
 } from "@shopify/polaris";
 import { useForm, useField, submitSuccess } from "@shopify/react-form";
 
-interface CreatePixelModalProps {
+interface CreateCustomerModalProps {
   open: boolean;
   onClose: () => void;
   onPixelCreate: (name: string, location: string) => void;
 }
 
-export default function CreatePixelModal(props: CreatePixelModalProps) {
+export function CreateCustomerModal(props: CreateCustomerModalProps) {
   const { open, onClose, onPixelCreate } = props;
 
-  const { submit, fields, submitting, dirty, reset, submitErrors } = useForm({
+  const { submit, fields, submitting, dirty, reset, submitErrors, makeClean } = useForm({
     fields: {
       name: useField(""),
       location: useField(""),
@@ -50,7 +50,8 @@ export default function CreatePixelModal(props: CreatePixelModalProps) {
 
     onClose();
     reset();
-  }, [submitting, onClose, reset]);
+    makeClean();
+  }, [submitting, onClose, reset, makeClean]);
 
   return (
     <Modal
@@ -86,10 +87,10 @@ export default function CreatePixelModal(props: CreatePixelModalProps) {
                 autoComplete="off"
                 {...fields.location}
               />
-              {submitErrors && (
-                <TextContainer>
+              {submitErrors.length > 0 && (
+                <VerticalStack gap="3">
                   {submitErrors[0]?.message ?? "There was an error."}
-                </TextContainer>
+                </VerticalStack>
               )}
             </FormLayout>
           </Form>

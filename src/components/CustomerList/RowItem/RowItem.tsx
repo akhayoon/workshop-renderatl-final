@@ -1,6 +1,6 @@
 import {ResourceItem, Text, Avatar } from "@shopify/polaris";
 
-export default function RowItem({ item, onDeleteItem }: any) {
+export function RowItem({ item, onDeleteItem }: any) {
   const { name, location } = item;
 
   const handleDeleteButton = () => {

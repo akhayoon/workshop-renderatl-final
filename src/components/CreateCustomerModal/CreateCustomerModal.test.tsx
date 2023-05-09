@@ -1,10 +1,9 @@
-import React from "react";
 import { Modal, Button, TextField } from "@shopify/polaris";
-import mountWithPolaris from "../testHelper";
+import mountWithPolaris from "../../testHelper";
 
-import CreatePixelModal from "./CreatePixelModal";
+import {CreateCustomerModal} from "./CreateCustomerModal";
 
-describe("<CreatePixelModal />", () => {
+describe("<CreateCustomerModal />", () => {
   const defaultProps = {
     open: false,
     onClose: jest.fn(),
@@ -17,7 +16,7 @@ describe("<CreatePixelModal />", () => {
 
   it("renders a <Modal /> with the correct props", () => {
     const wrapper = mountWithPolaris(
-      <CreatePixelModal {...defaultProps} open />
+      <CreateCustomerModal {...defaultProps} open />
     );
 
     expect(wrapper).toContainReactComponent(Modal, {
@@ -44,7 +43,7 @@ describe("<CreatePixelModal />", () => {
 
   it("enables the Create button when a name and location are entered", () => {
     const wrapper = mountWithPolaris(
-      <CreatePixelModal {...defaultProps} open />
+      <CreateCustomerModal {...defaultProps} open />
     );
 
     wrapper
@@ -64,7 +63,7 @@ describe("<CreatePixelModal />", () => {
   it("calls the onClose function when the Cancel button is clicked", () => {
     const onClose = jest.fn();
     const wrapper = mountWithPolaris(
-      <CreatePixelModal {...defaultProps} onClose={onClose} open />
+      <CreateCustomerModal {...defaultProps} onClose={onClose} open />
     );
 
     wrapper.find(Button, { children: "Cancel" })!.trigger("onClick");
@@ -76,7 +75,7 @@ describe("<CreatePixelModal />", () => {
     const onClose = jest.fn();
     const onPixelCreate = jest.fn();
     const wrapper = mountWithPolaris(
-      <CreatePixelModal
+      <CreateCustomerModal
         {...defaultProps}
         onClose={onClose}
         onPixelCreate={onPixelCreate}
