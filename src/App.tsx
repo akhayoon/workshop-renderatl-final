@@ -22,7 +22,7 @@ const iconWrapper = (
 export default function App() {
   const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(false);
 
   const handleBannerDismiss = () => {
     setShowBanner(false);

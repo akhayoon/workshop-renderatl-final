@@ -17,7 +17,7 @@ interface CreateCustomerModalProps {
 
 export function CreateCustomerModal(props: CreateCustomerModalProps) {
   const { open, onClose} = props;
-  const { addItem } = useContext(ItemsContext) as ItemsState;;
+  const { addItem } = useContext(ItemsContext) as ItemsState;
 
   const { submit, fields, submitting, dirty, reset, submitErrors, makeClean } = useForm({
     fields: {
