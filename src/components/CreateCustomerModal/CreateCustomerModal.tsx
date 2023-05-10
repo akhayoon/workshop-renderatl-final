@@ -15,6 +15,10 @@ interface CreateCustomerModalProps {
   onClose: () => void;
 }
 
+interface CustomError extends Error {
+  message: string;
+}
+
 export function CreateCustomerModal(props: CreateCustomerModalProps) {
   const { open, onClose} = props;
   const { addItem } = useContext(ItemsContext) as ItemsState;
@@ -46,10 +50,11 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
         addItem(newItem);
         closeModal();
         return submitSuccess();
-      } catch (error: any) {
+      } catch (error) {
+        const customError = error as CustomError;
         return {
           status: "fail",
-          errors: [{ message: error.message }],
+          errors: [{ message: customError?.message }],
         };
       }
     },
@@ -59,8 +64,9 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
     if (submitting) return;
 
     onClose();
-    reset();
     makeClean();
+    reset();
+
   }, [submitting, onClose, reset, makeClean]);
 
   return (

@@ -1,6 +1,12 @@
 import { ResourceItem, Text, Avatar, Badge } from "@shopify/polaris";
+import {Item} from '../../../../types';
 
-export function RowItem({ item, onDeleteItem }: any) {
+interface Props {
+  item: Item;
+  onDeleteItem: (id: string) => void
+}
+
+export function RowItem({ item, onDeleteItem }: Props) {
   const { name, location, isPrimary } = item;
 
   const handleDeleteButton = () => {

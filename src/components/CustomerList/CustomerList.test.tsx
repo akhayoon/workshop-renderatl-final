@@ -2,15 +2,14 @@ import {
   LegacyCard,
   ResourceList,
   Modal,
-  Button,
-  ResourceItem
+  ResourceItem,
+  TextField,
+  EmptySearchResult
 } from "@shopify/polaris";
 import mountWithPolaris from "../../testHelper";
 import {RowItem} from "./components/RowItem/";
 import {CustomerList} from "./CustomerList";
-
 import { ItemsProvider } from "../../context/ItemsContext";
-import {Item} from "../../hooks/useItems";
 
 const initialItems = [
   {
@@ -29,12 +28,6 @@ const initialItems = [
   },
 ];
 
-const defaultProps = {
-  items: initialItems,
-  filterControl: null,
-  onDeleteItem: jest.fn(),
-};
-
 const mountComponentWithItemsProvider = (
   children: React.ReactElement,
 ) =>
@@ -48,7 +41,7 @@ describe('<CustomerList />', () => {
   });
 
   it('renders without any errors', () => {
-    const wrapper = mountComponentWithItemsProvider(<CustomerList filterControl={null} />);
+    const wrapper = mountComponentWithItemsProvider(<CustomerList />);
     expect(wrapper).toContainReactComponent(LegacyCard);
     expect(wrapper).toContainReactComponent(ResourceList);
 
@@ -57,9 +50,11 @@ describe('<CustomerList />', () => {
   });
 
   it("opens a modal when the delete button is clicked and removes the item from the list", async () => {
-    const wrapper = mountComponentWithItemsProvider(<CustomerList filterControl={null} />);
+    const wrapper = mountComponentWithItemsProvider(<CustomerList />);
 
     // Find the second (deletable) RowItem and its shortcutActions prop
+    /* USE THIS AS AN OPPORTUNITY TO DEBUG? */
+    // wrapper.findAll(ResourceItem) vs wrapper.findAll(RowItem)
     const firstRowItem = wrapper.findAll(ResourceItem)[1];
     wrapper.act(() => {
       firstRowItem?.triggerKeypath('shortcutActions[0].onAction');
@@ -73,43 +68,29 @@ describe('<CustomerList />', () => {
     expect(rowItems).toHaveLength(initialItems.length - 1);
   });
 
-  // it('opens a modal when the delete button is clicked and removes the item from the list', () => {
-  //   const wrapper = mountComponentWithItemsProvider(<CustomerList filterControl={null} />);
+  it("filters the list of items based on the search query", async () => {
+    const wrapper = mountComponentWithItemsProvider(
+      <CustomerList />
+    );
 
-  //   // Find the first RowItem.
-  //   const firstRowItem = wrapper.find(RowItem);
-  //   const deleteButton = firstRowItem?.find(Button, { children: 'Delete' });
+    const searchField = wrapper.find(TextField);
+    wrapper.act(() => searchField?.trigger('onChange', 'Mae'));
 
-  //   // Click on the delete button.
-  //   wrapper.act(() => {
-  //     firstRowItem?.trigger('onDeleteItem');
-  //   });
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(1);
+    expect(rowItems[0].props.item.name).toEqual("Mae Jemison");
+  });
 
-  //   /* USE THIS AS AN OPPORTUNITY TO DEBUG? */
-  //   // firstRowItem?.find('button') vs firstRowItem?.find(Button)
+  it("shows empty results if no items found in serach", async () => {
+    const wrapper = mountComponentWithItemsProvider(
+      <CustomerList />
+    );
 
-  //   console.log(deleteButton);
+    const searchField = wrapper.find(TextField);
+    wrapper.act(() => searchField?.trigger('onChange', 'testing this'));
 
-  //   wrapper.find(Modal)!.triggerKeypath('primaryAction.onAction');
-  //   // expect(defaultProps.onDeleteItem).toHaveBeenCalledTimes(1);
-
-  //   // // Check that onDeleteItem function is called with specific id, and item deleted.
-  //   // defaultProps.onDeleteItem.mock.calls[0][0](itemIdToDelete);
-  //   // expect(defaultProps.onDeleteItem).toHaveBeenCalledWith(itemIdToDelete);
-
-  //   const rowItems = wrapper.findAll(RowItem);
-  //   expect(rowItems).toHaveLength(initialItems.length - 1);
-  // });
-
-  // it('displays the empty state when there are no items', () => {
-  //   const wrapper = mountWithPolaris(<CustomerList {...defaultProps} dataTestId="customer-list" />);
-  //   wrapper.setProps({ items: [] });
-
-  //   expect(wrapper).toContainReactComponent(ResourceList, {
-  //     resourceName: { singular: "customer", plural: "customers" },
-  //     items: [],
-  //   });
-  // });
-
-  // Add the setup for the search filtering test here.
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(0);
+    expect(wrapper).toContainReactComponent(EmptySearchResult)
+  });
 });

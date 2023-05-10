@@ -60,13 +60,17 @@ describe("<CreateCustomerModal />", () => {
   it("enables the Create button when a name and location are entered", () => {
     const wrapper = mountComponentWithItemsProvider(<CreateCustomerModal {...defaultProps} open />);
 
-    wrapper
+    wrapper.act(() => {
+      wrapper
       .find(TextField, { label: "Name" })!
       .trigger("onChange", "New Customer");
+    });
 
-    wrapper
+    wrapper.act(() => {
+      wrapper
       .find(TextField, { label: "Location" })!
       .trigger("onChange", "New Location");
+    });
 
     expect(wrapper).toContainReactComponent(Button, {
       children: "Create",
@@ -78,7 +82,10 @@ describe("<CreateCustomerModal />", () => {
     const onClose = jest.fn();
     const wrapper = mountComponentWithItemsProvider(<CreateCustomerModal {...defaultProps} onClose={onClose} open />);
 
-    wrapper.find(Button, { children: "Cancel" })!.trigger("onClick");
+    wrapper.act(() => {
+      wrapper
+      wrapper.find(Button, { children: "Cancel" })!.trigger("onClick");
+    });
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -91,13 +98,17 @@ describe("<CreateCustomerModal />", () => {
     (useItems as jest.Mock).mockImplementation(() => ({ addItem: addItemMock }));
     const wrapper = mountComponentWithItemsProvider(<CreateCustomerModal {...defaultProps} onClose={onClose} open />);
 
-    wrapper
+    wrapper.act(() => {
+      wrapper
       .find(TextField, { label: "Name" })!
       .trigger("onChange", "New Customer");
+    });
 
-    wrapper
+    wrapper.act(() => {
+      wrapper
       .find(TextField, { label: "Location" })!
       .trigger("onChange", "New Location");
+    });
 
     wrapper.find(Button, { children: "Create" })!.trigger("onClick");
 

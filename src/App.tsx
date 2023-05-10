@@ -4,24 +4,16 @@ import {
   Layout,
   Page,
   FooterHelp,
-  TextField,
-  Icon,
   Banner,
 } from "@shopify/polaris";
-import { GlobeMajor, SearchMinor } from "@shopify/polaris-icons";
+import { GlobeMajor } from "@shopify/polaris-icons";
 import { CreateCustomerModal } from "./components/CreateCustomerModal";
 import { CustomerList } from "./components/CustomerList";
 import { ItemsProvider } from "./context/ItemsContext";
-
-const iconWrapper = (
-  Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>
-) => {
-  return () => <Icon />;
-};
+import iconWrapper from "./utilities/iconWrapper"
 
 export default function App() {
   const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
-  const [searchValue, setSearchValue] = useState<string>("");
   const [showBanner, setShowBanner] = useState(false);
 
   const handleBannerDismiss = () => {
@@ -47,21 +39,6 @@ export default function App() {
     },
   ];
 
-  const handleSearch = useCallback((value: string) => {
-    setSearchValue(value);
-  }, []);
-
-  const filterControl = (
-    <TextField
-      label=""
-      placeholder="Filter customers"
-      onChange={handleSearch}
-      value={searchValue}
-      autoComplete="off"
-      prefix={<Icon source={SearchMinor as any} />}
-    />
-  );
-
   return (
     <ItemsProvider>
       <Page
@@ -82,7 +59,7 @@ export default function App() {
             )}
           </Layout.Section>
           <Layout.Section>
-            <CustomerList filterControl={filterControl} />
+            <CustomerList />
           </Layout.Section>
 
           <Layout.Section>

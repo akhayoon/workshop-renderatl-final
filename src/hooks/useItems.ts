@@ -30,7 +30,6 @@ export const useItems = () => {
 
   const addItem = useCallback((item: Item) => {
     setItems((prevItems: Item[]): Item[] => [...prevItems, item]);
-
   }, []);
 
   const removeItem = useCallback((id: string) => {

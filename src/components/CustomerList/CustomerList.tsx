@@ -1,18 +1,31 @@
-import React, { useContext, useState, useCallback } from "react";
-import { LegacyCard, ResourceList } from "@shopify/polaris";
+import { useContext, useState, useCallback, ReactNode } from "react";
+import { LegacyCard, ResourceList, TextField, Icon } from "@shopify/polaris";
+import { SearchMinor } from "@shopify/polaris-icons";
 import { RowItem } from "./components/RowItem";
 import { DeleteModal } from "./components/DeleteModal";
 import ItemsContext from "../../context/ItemsContext";
 import { ItemsState } from "../../types";
+import iconWrapper from "../../utilities/iconWrapper"
 
-
-interface Props {
-  filterControl: React.ReactNode;
-}
-
-export function CustomerList({ filterControl }: Props) {
+export function CustomerList() {
   const { items, removeItem } = useContext(ItemsContext) as ItemsState;;
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+  const [searchValue, setSearchValue] = useState<string>("");
+
+  const handleSearch = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
+
+  const filterControl = (
+    <TextField
+      label=""
+      placeholder="Filter customers"
+      onChange={handleSearch}
+      value={searchValue}
+      autoComplete="off"
+      prefix={<Icon source={iconWrapper(SearchMinor)} />}
+    />
+  );
 
   const handleDeleteClick = useCallback((id: string) => {
     setDeleteItemId(id);
@@ -20,21 +33,25 @@ export function CustomerList({ filterControl }: Props) {
 
   const handleDeleteConfirm = useCallback(() => {
     if (deleteItemId) {
-      removeItem(deleteItemId); // Use removeItem from the context
+      removeItem(deleteItemId);
     }
     setDeleteItemId(null);
-  }, [deleteItemId, removeItem]); // Add removeItem to dependencies
+  }, [deleteItemId, removeItem]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteItemId(null);
   }, []);
+
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <>
       <LegacyCard>
         <ResourceList
           resourceName={{ singular: "customer", plural: "customers" }}
-          items={items}
+          items={filteredItems}
           renderItem={(item) => (
             <RowItem item={item} onDeleteItem={handleDeleteClick} key={item.id} />
           )}
