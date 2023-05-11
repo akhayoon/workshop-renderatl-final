@@ -9,9 +9,7 @@ const rootElement = document.getElementById("root")!;
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
-  <React.StrictMode>
-    <AppProvider i18n={enTranslations}>
-      <App />
-    </AppProvider>
-  </React.StrictMode>
+  <AppProvider i18n={enTranslations}>
+    <App />
+  </AppProvider>
 );

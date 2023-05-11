@@ -24,7 +24,6 @@ describe("<App />", () => {
   afterEach(() => {
     console.error = originalConsoleError;
     jest.clearAllMocks();
-
   });
 
   it("opens the CreateCustomerModal when the New Pixel button is clicked", () => {
