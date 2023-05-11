@@ -1,4 +1,4 @@
-import { Modal, Button, TextField, Page } from "@shopify/polaris";
+import { Modal, Button, TextField, Page, ResourceItem, Banner } from "@shopify/polaris";
 import type {MenuActionDescriptor} from '@shopify/polaris';
 import { ItemsProvider } from "./context/ItemsContext";
 import {RowItem} from './components/CustomerList/components/RowItem';
@@ -37,6 +37,44 @@ describe("<App />", () => {
     expect(wrapper.find(Modal)).toHaveReactProps({open: true});
   });
 
+  it("opening the CreateCustomerModal, filling in the info and closing the modal resets it", () => {
+    const wrapper = mountWithPolaris(
+      <App />
+    );
+
+    wrapper.act(() => {
+      wrapper.find(Page)!.triggerKeypath('primaryAction.onAction');
+    });
+
+    wrapper.act(() => {
+      wrapper
+      .find(TextField, { label: "Name" })!
+      .trigger("onChange", "New Customer");
+    });
+
+    wrapper.act(() => {
+      wrapper
+      .find(TextField, { label: "Location" })!
+      .trigger("onChange", "New Location");
+    });
+
+    wrapper.act(() => {
+      wrapper.find(Modal)!.triggerKeypath('secondaryActions[0].onAction');
+    });
+
+    wrapper.act(() => {
+      wrapper.find(Page)!.triggerKeypath('primaryAction.onAction');
+    });
+
+    // Check that text fields are empty
+    expect(
+      wrapper.find(TextField, { label: "Name" })!.prop("value")
+    ).toBe("");
+    expect(
+      wrapper.find(TextField, { label: "Location" })!.prop("value")
+    ).toBe("");
+  });
+
   it("creates new item in CustomerList after the CreateCustomerModal is submitted", () => {
     const wrapper = mountComponentWithItemsProvider(
       <App />
@@ -64,7 +102,24 @@ describe("<App />", () => {
     expect(rowItems).toHaveLength(3);
   });
 
-  it("opens link in new window when clicking on secondary actions", async () => {
+  it("shows an error banner if deleting an account that is primary", () => {
+    const wrapper = mountComponentWithItemsProvider(<App />);
+
+    const firstResourceItem = wrapper.findAll(ResourceItem)[0];
+    wrapper.act(() => {
+      firstResourceItem?.triggerKeypath('shortcutActions[0].onAction');
+    });
+
+    wrapper.act(() => {
+      wrapper.find(Modal)?.triggerKeypath("primaryAction.onAction");
+    });
+
+    expect(wrapper).toContainReactComponent(Banner, {
+      title: "This record cannot be deleted",
+      status: "critical",
+    });
+  });
+  it("opens link in new window when clicking on secondary actions", () => {
     const spy = jest.spyOn(window, 'open');
     const wrapper = mountWithPolaris(
       <App />

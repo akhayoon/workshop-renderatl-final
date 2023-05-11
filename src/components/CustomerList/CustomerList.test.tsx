@@ -4,11 +4,11 @@ import {
   Modal,
   ResourceItem,
   TextField,
-  EmptySearchResult
+  EmptySearchResult,
 } from "@shopify/polaris";
 import mountWithPolaris from "../../testHelper";
-import {RowItem} from "./components/RowItem/";
-import {CustomerList} from "./CustomerList";
+import { RowItem } from "./components/RowItem/";
+import { CustomerList } from "./CustomerList";
 import { ItemsProvider } from "../../context/ItemsContext";
 
 const initialItems = [
@@ -28,20 +28,20 @@ const initialItems = [
   },
 ];
 
-const mountComponentWithItemsProvider = (
-  children: React.ReactElement,
-) =>
-  mountWithPolaris(
-    <ItemsProvider>{children}</ItemsProvider>
-  );
+const mountComponentWithItemsProvider = (children: React.ReactElement) =>
+  mountWithPolaris(<ItemsProvider>{children}</ItemsProvider>);
 
-describe('<CustomerList />', () => {
+describe("<CustomerList />", () => {
+  const defaultProps = {
+    onCannotDeletePrimary: () => {}
+  };
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders without any errors', () => {
-    const wrapper = mountComponentWithItemsProvider(<CustomerList />);
+  it("renders without any errors", () => {
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
     expect(wrapper).toContainReactComponent(LegacyCard);
     expect(wrapper).toContainReactComponent(ResourceList);
 
@@ -50,18 +50,18 @@ describe('<CustomerList />', () => {
   });
 
   it("opens a modal when the delete button is clicked and removes the item from the list", async () => {
-    const wrapper = mountComponentWithItemsProvider(<CustomerList />);
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
 
     // Find the second (deletable) RowItem and its shortcutActions prop
     /* USE THIS AS AN OPPORTUNITY TO DEBUG? */
     // wrapper.findAll(ResourceItem) vs wrapper.findAll(RowItem)
     const firstRowItem = wrapper.findAll(ResourceItem)[1];
     wrapper.act(() => {
-      firstRowItem?.triggerKeypath('shortcutActions[0].onAction');
-    })
+      firstRowItem?.triggerKeypath("shortcutActions[0].onAction");
+    });
 
     wrapper.act(() => {
-      wrapper.find(Modal)?.triggerKeypath('primaryAction.onAction')
+      wrapper.find(Modal)?.triggerKeypath("primaryAction.onAction");
     });
 
     const rowItems = wrapper.findAll(RowItem);
@@ -69,12 +69,10 @@ describe('<CustomerList />', () => {
   });
 
   it("filters the list of items based on the search query", async () => {
-    const wrapper = mountComponentWithItemsProvider(
-      <CustomerList />
-    );
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
 
     const searchField = wrapper.find(TextField);
-    wrapper.act(() => searchField?.trigger('onChange', 'Mae'));
+    wrapper.act(() => searchField?.trigger("onChange", "Mae"));
 
     const rowItems = wrapper.findAll(RowItem);
     expect(rowItems).toHaveLength(1);
@@ -82,15 +80,13 @@ describe('<CustomerList />', () => {
   });
 
   it("shows empty results if no items found in serach", async () => {
-    const wrapper = mountComponentWithItemsProvider(
-      <CustomerList />
-    );
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
 
     const searchField = wrapper.find(TextField);
-    wrapper.act(() => searchField?.trigger('onChange', 'testing this'));
+    wrapper.act(() => searchField?.trigger("onChange", "testing this"));
 
     const rowItems = wrapper.findAll(RowItem);
     expect(rowItems).toHaveLength(0);
-    expect(wrapper).toContainReactComponent(EmptySearchResult)
+    expect(wrapper).toContainReactComponent(EmptySearchResult);
   });
 });

@@ -16,15 +16,6 @@ export default function App() {
   const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
 
-  const handleBannerDismiss = () => {
-    setShowBanner(false);
-  };
-
-  const handleCloseModal = useCallback(
-    () => setShowCreateCustomerModal(false),
-    [setShowCreateCustomerModal]
-  );
-
   const primaryAction = {
     content: "New Customer",
     onAction: () => setShowCreateCustomerModal(true),
@@ -38,6 +29,19 @@ export default function App() {
       external: true,
     },
   ];
+
+  const handleBannerDismiss = () => {
+    setShowBanner(false);
+  };
+
+  const handleCloseModal = useCallback(
+    () => setShowCreateCustomerModal(false),
+    [setShowCreateCustomerModal]
+  );
+
+  const handleCannotDeletePrimary = useCallback(() => {
+    setShowBanner(true);
+  }, []);
 
   return (
     <ItemsProvider>
@@ -59,7 +63,7 @@ export default function App() {
             )}
           </Layout.Section>
           <Layout.Section>
-            <CustomerList />
+            <CustomerList onCannotDeletePrimary={handleCannotDeletePrimary} />
           </Layout.Section>
 
           <Layout.Section>

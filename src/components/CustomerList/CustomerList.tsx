@@ -7,7 +7,12 @@ import ItemsContext from "../../context/ItemsContext";
 import { ItemsState } from "../../types";
 import iconWrapper from "../../utilities/iconWrapper"
 
-export function CustomerList() {
+interface CustomerListProps {
+  onCannotDeletePrimary: () => void;
+}
+
+export function CustomerList({ onCannotDeletePrimary }: CustomerListProps) {
+
   const { items, removeItem } = useContext(ItemsContext) as ItemsState;;
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -33,7 +38,9 @@ export function CustomerList() {
 
   const handleDeleteConfirm = useCallback(() => {
     if (deleteItemId) {
-      removeItem(deleteItemId);
+      const itemToDelete = items.find(item => item.id === deleteItemId);
+
+      itemToDelete?.isPrimary ? onCannotDeletePrimary() : removeItem(deleteItemId);
     }
     setDeleteItemId(null);
   }, [deleteItemId, removeItem]);

@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useId } from "react";
 import { Item, ItemsState } from "../../types";
 import {
   Modal,
@@ -40,7 +40,7 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
 
       try {
         const newItem: Item = {
-          id: Date.now().toString(), // or another method of generating unique IDs
+          id: Date.now().toString(),
           isPrimary: false,
           url: "#",
           name: name.value,
@@ -64,7 +64,6 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
     if (submitting) return;
 
     onClose();
-    makeClean();
     reset();
 
   }, [submitting, onClose, reset, makeClean]);

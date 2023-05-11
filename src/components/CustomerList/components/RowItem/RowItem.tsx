@@ -1,4 +1,4 @@
-import { ResourceItem, Text, Avatar, Badge } from "@shopify/polaris";
+import { ResourceItem, Text, Avatar, Badge, HorizontalStack } from "@shopify/polaris";
 import {Item} from '../../../../types';
 
 interface Props {
@@ -31,14 +31,16 @@ export function RowItem({ item, onDeleteItem }: Props) {
       media={media}
       shortcutActions={shortcutActions}
     >
-      <Text variant="bodyMd" fontWeight="bold" as="h3">
-        {name}
+      <HorizontalStack wrap={false} gap="4">
+        <Text variant="bodyMd" fontWeight="bold" as="h3">
+          {name}
+        </Text>
         {isPrimary && (
           <Badge status="info" progress="complete">
             Primary
           </Badge>
         )}
-      </Text>
+      </HorizontalStack>
       <div>{location}</div>
     </ResourceItem>
   );
