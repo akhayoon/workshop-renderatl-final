@@ -44,3 +44,57 @@ yarn test
 ```
 
 Press `a` to run all tests.
+
+
+## Testing Links
+
+In this part of the workshop, we will learn how to test links in a React application. We will use two test cases as examples:
+
+### Test Case 1: Redirect to Polaris style guide when clicking on footer
+
+```typescript
+it("redirect to Polaris style guide when clicking on footer", () => {
+  const wrapper = mountWithPolaris(
+    <App />
+  );
+
+  const footer = wrapper.find(FooterHelp);
+
+  expect(footer?.find(Link)).toHaveReactProps({
+    url: 'https://polaris.shopify.com',
+  });
+});
+```
+
+### Test Case 2: Open link in a new window when clicking on secondary actions
+
+```typescript
+it("opens link in new window when clicking on secondary actions", () => {
+  const mockWindowOpen = jest.fn();
+  window.open = mockWindowOpen;
+
+  const spy = jest.spyOn(window, 'open');
+  const wrapper = mountWithPolaris(
+    <App />
+  );
+
+  const secondaryActions = wrapper
+  .find(Page)!
+  .prop('secondaryActions') as MenuActionDescriptor[];
+
+  expect(secondaryActions).not.toBeNull();
+  const getSupportLink = secondaryActions?.[0]
+
+  window.open(getSupportLink.url, '_blank');
+  const expectedUrl = 'https://apps.shopify.com/collections/pixels';
+
+  expect(spy).toHaveBeenCalledWith(expectedUrl, '_blank');
+});
+```
+
+In these test cases, we are using Jest and Shopify React Testing Library to test the behavior of links in our React application. The first test case checks if the footer link redirects to the Polaris style guide, while the second test case verifies that the secondary action link opens in a new window.
+
+
+
+
+
