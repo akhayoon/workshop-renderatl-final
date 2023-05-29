@@ -1,10 +1,11 @@
 import "./styles.css";
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Layout,
   Page,
   FooterHelp,
   Banner,
+  Link
 } from "@shopify/polaris";
 import { GlobeMajor } from "@shopify/polaris-icons";
 import { CreateCustomerModal } from "./components/CreateCustomerModal";
@@ -69,7 +70,7 @@ export default function App() {
           <Layout.Section>
             <FooterHelp>
               For more details on Polaris, visit our{" "}
-              <a href="https://polaris.shopify.com">style guide</a>.
+              <Link url="https://polaris.shopify.com">style guide</Link>.
             </FooterHelp>
           </Layout.Section>
         </Layout>
