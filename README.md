@@ -1,5 +1,4 @@
-# workshop-renderatl
-# Workshop Instructions
+# React Testing Workshop Instructions
 
 Welcome to the React Testing Workshop! In this session, we will walk you through setting up a project and learning how to test in React using Shopify's Polaris and React Testing libraries. Please follow the instructions below to set up your environment.
 
@@ -319,6 +318,12 @@ it("calls the onPixelCreate and onClose functions when the Create button is clic
   });
 ```
 
+The line `expect(addItemMock.mock.calls[0][0]).toMatchObject({` is an assertion that checks if the addItemMock function was called with the expected object. The addItemMock.mock.calls property is an array that contains all the calls made to the addItemMock function. Each element in the array is another array that contains the arguments passed to the function during that specific call.
+
+In this case, we are interested in the first call to the addItemMock function, so we access it using `addItemMock.mock.calls[0]`. Since we want to check the first argument passed to the function during this call, we use [0] again to access it.
+
+Finally, we use the toMatchObject Jest matcher to compare the actual argument with the expected object. If the actual argument contains all the properties and values specified in the expected object, the test will pass.
+
 ### Going back to App.test.tsx to test full scenarios of the modal
 
 Now we're going to test that closing the modal or submitting creates our desired behaviour
@@ -415,6 +420,8 @@ it("creates new item in CustomerList after the CreateCustomerModal is submitted"
     expect(rowItems).toHaveLength(3);
   });
 ```
+
+
 
 ## Testing CustomerList Component
 
@@ -524,6 +531,7 @@ const firstRowItem = wrapper.findAll(ResourceItem)[1];
 
 ## Testing the search functionality
 
+### Testing simlple filtering
 The search here is a simple filter. So let's add the following test case
 
 ```typescript
@@ -541,7 +549,7 @@ The search here is a simple filter. So let's add the following test case
 
 You can see here that we're expecting only a specific row to show, which are the results.
 
-And let's not forget the empty state, if there are no search results
+### Testing the empty state
 
 ```typescript
   it("shows empty results if no items found in serach", async () => {
@@ -554,4 +562,164 @@ And let's not forget the empty state, if there are no search results
     expect(rowItems).toHaveLength(0);
     expect(wrapper).toContainReactComponent(EmptySearchResult);
   });
+```
+
+## Let's test our hook
+
+### Testing the functionality of a hook
+
+Before you copy over this code, note how we test the hook in isolation using renderHook. This way, we don't need to render a component to test it.
+
+But because we're using `@testing-library/react-hooks` for demonstration purposes, we have to silence a console.error regarding a React version mismatch
+
+```typescript
+import { renderHook, act } from "@testing-library/react-hooks";
+import { useItems, Item } from "./useItems";
+
+describe("useItems", () => {
+  let originalConsoleError: Console['error'];
+
+  beforeEach(() => {
+    originalConsoleError = console.error;
+    console.error = () => {};
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError;
+  });
+
+  it("adds and removes items correctly", () => {
+    const { result } = renderHook(() => useItems());
+
+    // Test initial state
+    expect(result.current.items.length).toBe(2);
+
+    // Test addItem
+    const newItem: Item = {
+      id: "300",
+      isPrimary: false,
+      url: "#",
+      name: "Sally Ride",
+      location: "Los Angeles, USA",
+    };
+
+    act(() => {
+      result.current.addItem(newItem);
+    });
+
+    expect(result.current.items.length).toBe(3);
+    expect(result.current.items[2]).toEqual(newItem);
+
+    // Test removeItem
+    act(() => {
+      result.current.removeItem("200");
+    });
+
+    expect(result.current.items.length).toBe(2);
+    expect(result.current.items.find((item) => item.id === "200")).toBeUndefined();
+  });
+});
+```
+
+## For completion, let's test the DeleteModal component
+
+let's add a file called `DeleteModal.test.tsx` and add the following code
+
+```typescript
+import { Modal, Button } from "@shopify/polaris";
+import mountWithPolaris from "../../../../testHelper";
+import { DeleteModal } from "./DeleteModal";
+
+describe("<DeleteModal />", () => {
+  const defaultProps = {
+    open: false,
+    onClose: jest.fn(),
+    onConfirm: jest.fn(),
+  };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("calls the onClose function when the Cancel button is clicked", () => {
+    const onClose = jest.fn();
+    const wrapper = mountWithPolaris(
+      <DeleteModal {...defaultProps} onClose={onClose} open />
+    );
+
+    wrapper.find(Button, { children: "Cancel" })!.trigger("onClick");
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls the onConfirm function when the Delete button is clicked", () => {
+    const onConfirm = jest.fn();
+    const wrapper = mountWithPolaris(
+      <DeleteModal {...defaultProps} onConfirm={onConfirm} open />
+    );
+
+    wrapper.find(Button, { children: "Delete" })!.trigger("onClick");
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls the onClose function when the Modal is closed", () => {
+    const onClose = jest.fn();
+    const wrapper = mountWithPolaris(
+      <DeleteModal {...defaultProps} onClose={onClose} open />
+    );
+
+    wrapper.find(Modal)!.trigger("onClose");
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+## Let's test RowItem similary
+
+Create a file called `RowItem.test.tsx`
+
+```typescript
+import { Badge, ResourceItem } from "@shopify/polaris";
+import mountWithPolaris from "../../../../testHelper";
+import { RowItem } from "./RowItem";
+
+const customerItem = {
+  id: "100",
+  isPrimary: true,
+  url: "#",
+  name: "Mae Jemison",
+  location: "Decatur, USA",
+};
+
+describe("<RowItem />", () => {
+  const defaultProps = {
+    item: customerItem,
+    onDeleteItem: jest.fn(),
+  };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('calls onDelete when delete button is clicked', () => {
+    const onDeleteItem = jest.fn();
+
+    const wrapper = mountWithPolaris(
+      <RowItem {...defaultProps} onDeleteItem={onDeleteItem} />
+    );
+
+    wrapper.act(() => {
+      wrapper.find(ResourceItem)?.triggerKeypath("shortcutActions[0].onAction");
+    });
+
+    expect(onDeleteItem).toHaveBeenCalled()
+  });
+
+  it("renders a page when customer isPrimary", () => {
+    const wrapper = mountWithPolaris(
+      <RowItem {...defaultProps} />
+    );
+
+    expect(wrapper).toContainReactComponent(Badge);
+  });
+});
 ```
