@@ -150,7 +150,7 @@ Add the following test case to your `App.test.tsx` file:
 
 ## Testing CreateCustomerModal Component
 
-In this part of the workshop, we will learn how to test the `CreateCustomerModal` component. This component is located in its own file called `CreateCustomerModal.test.tsx`. We will be using the `@shopify/react-form` library and testing a custom hook with a mock implementation that uses the provider.
+In this part of the workshop, we will learn how to test the `CreateCustomerModal` component. This component is located in its own file called `CreateCustomerModal`. We will be using the `@shopify/react-form` library and testing a custom hook with a mock implementation that uses the provider.
 
 ### Basic Modal Tests
 
@@ -319,8 +319,239 @@ it("calls the onPixelCreate and onClose functions when the Create button is clic
   });
 ```
 
+### Going back to App.test.tsx to test full scenarios of the modal
 
+Now we're going to test that closing the modal or submitting creates our desired behaviour
 
+First let's add this test inside `App.test.tsx`
 
+Make sure to import `TextField` from polaris
 
+```typescript
+ it("opening the CreateCustomerModal, filling in the info and closing the modal resets it", () => {
+    const wrapper = mountWithPolaris(
+      <App />
+    );
 
+    wrapper.act(() => {
+      wrapper.find(Page)!.triggerKeypath('primaryAction.onAction');
+    });
+
+    wrapper.act(() => {
+      wrapper
+      .find(TextField, { label: "Name" })!
+      .trigger("onChange", "New Customer");
+    });
+
+    wrapper.act(() => {
+      wrapper
+      .find(TextField, { label: "Location" })!
+      .trigger("onChange", "New Location");
+    });
+
+    wrapper.act(() => {
+      wrapper.find(Modal)!.triggerKeypath('secondaryActions[0].onAction');
+    });
+
+    wrapper.act(() => {
+      wrapper.find(Page)!.triggerKeypath('primaryAction.onAction');
+    });
+
+    // Check that text fields are empty
+    expect(
+      wrapper.find(TextField, { label: "Name" })!.prop("value")
+    ).toBe("");
+    expect(
+      wrapper.find(TextField, { label: "Location" })!.prop("value")
+    ).toBe("");
+  });
+```
+
+Next, let's make sure that submitting the form with proper data adds a new row
+
+Before you add the test case below, let's make sure we have all the imports and setup necessary
+
+```typescript
+import { Modal, Page, FooterHelp, Link, TextField, Button} from "@shopify/polaris";
+
+import { ItemsProvider } from "./context/ItemsContext";
+import {RowItem} from './components/CustomerList/components/RowItem';
+
+const mountComponentWithItemsProvider = (
+  children: React.ReactElement,
+) =>
+  mountWithPolaris(
+    <ItemsProvider>{children}</ItemsProvider>
+  );
+```
+
+Now add the following test case
+
+```typescript
+it("creates new item in CustomerList after the CreateCustomerModal is submitted", () => {
+    const wrapper = mountComponentWithItemsProvider(
+      <App />
+    );
+
+    wrapper.act(() => {
+      wrapper.find(Page)!.triggerKeypath('primaryAction.onAction');
+    });
+
+    wrapper.act(() => {
+      wrapper
+      .find(TextField, { label: "Name" })!
+      .trigger("onChange", "New Customer");
+    });
+
+    wrapper.act(() => {
+      wrapper
+      .find(TextField, { label: "Location" })!
+      .trigger("onChange", "New Location");
+    });
+
+    wrapper.find(Button, { children: "Create" })!.trigger("onClick");
+
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(3);
+  });
+```
+
+## Testing CustomerList Component
+
+In this part of the workshop, we will learn how to test the `CustomerList` component. This component is located in its own file called `CustomerList.tsx`. It uses a Polaris component called a `ResourceList` to give us a simpler table like capability
+
+### Testing with mock data
+
+```typescript
+import {
+  ResourceList,
+  Modal,
+  ResourceItem,
+  TextField,
+  EmptySearchResult,
+} from "@shopify/polaris";
+import mountWithPolaris from "../../testHelper";
+import { RowItem } from "./components/RowItem/";
+import { CustomerList } from "./CustomerList";
+import { ItemsProvider } from "../../context/ItemsContext";
+
+const initialItems = [
+  {
+    id: "100",
+    isPrimary: true,
+    url: "#",
+    name: "Mae Jemison",
+    location: "Decatur, USA",
+  },
+  {
+    id: "200",
+    isPrimary: false,
+    url: "#",
+    name: "Ellen Ochoa",
+    location: "Los Angeles, USA",
+  },
+];
+
+const mountComponentWithItemsProvider = (children: React.ReactElement) =>
+  mountWithPolaris(<ItemsProvider>{children}</ItemsProvider>);
+
+describe("<CustomerList />", () => {
+  const defaultProps = {
+    onCannotDeletePrimary: () => {}
+  };
+
+  it("renders ResourceList with as many rows as our mock data provides", () => {
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
+    expect(wrapper).toContainReactComponent(ResourceList);
+
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(initialItems.length);
+  });
+});
+```
+
+### Testing the delete functionality
+
+Let's make sure our delete button is working. We can't delete the first item, but let's make sure the delete itself works without
+worrying about any edge cases yet
+
+```typescript
+  it("opens a modal when the delete button is clicked and removes the item from the list", async () => {
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
+
+    const firstRowItem = wrapper.findAll(RowItem)[1];
+    wrapper.act(() => {
+      firstRowItem?.triggerKeypath("shortcutActions[0].onAction");
+    });
+
+    wrapper.act(() => {
+      wrapper.find(Modal)?.triggerKeypath("primaryAction.onAction");
+    });
+
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(initialItems.length - 1);
+  });
+```
+
+Notice how this didn't work. Let's use the `debug()` function to help us see why.
+
+Let's add it under the variable firstRowItem
+
+```typescript
+  const firstRowItem = wrapper.findAll(RowItem)[1];
+  console.log(firstRowItem.debug());
+```
+
+The results of this tree make it a bit more clear why this is not working
+
+```typescript
+<RowItem item={{"id": "200", "isPrimary": false, "location": "Los Angeles, USA", "name": "Ellen Ochoa", "url": "#"}} onDeleteItem={[Function anonymous]}>
+  <ResourceItem id="Ellen Ochoa" url="#" accessibilityLabel="Ellen Ochoa" persistActions media={<Avatar customer={true} name="Ellen Ochoa" size="medium" />} shortcutActions={[{"content": "Delete", "destructive": true, "onAction": [Function handleDeleteButton]}]}>
+```
+
+We need to be explicit here on what component has the `shortCutActions` key path that we can trigger. And here it shows that it's not on the `<RowItem />` component, but on the `<ResourceItem />` itself!
+
+Replace the following line
+```typescript
+const firstRowItem = wrapper.findAll(RowItem)[1];
+```
+
+with this line and you should see all green again!
+with
+```typescript
+const firstRowItem = wrapper.findAll(ResourceItem)[1];
+```
+
+## Testing the search functionality
+
+The search here is a simple filter. So let's add the following test case
+
+```typescript
+  it("filters the list of items based on the search query", async () => {
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
+
+    const searchField = wrapper.find(TextField);
+    wrapper.act(() => searchField?.trigger("onChange", "Mae"));
+
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(1);
+    expect(rowItems[0].props.item.name).toEqual("Mae Jemison");
+  });
+```
+
+You can see here that we're expecting only a specific row to show, which are the results.
+
+And let's not forget the empty state, if there are no search results
+
+```typescript
+  it("shows empty results if no items found in serach", async () => {
+    const wrapper = mountComponentWithItemsProvider(<CustomerList {...defaultProps} />);
+
+    const searchField = wrapper.find(TextField);
+    wrapper.act(() => searchField?.trigger("onChange", "testing this"));
+
+    const rowItems = wrapper.findAll(RowItem);
+    expect(rowItems).toHaveLength(0);
+    expect(wrapper).toContainReactComponent(EmptySearchResult);
+  });
+```
