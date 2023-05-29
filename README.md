@@ -10,10 +10,10 @@ Welcome to the React Testing Workshop! In this session, we will walk you through
 
 ### 1. Clone the repository
 
-First, you need to clone the repository from GitHub. Make sure you clone the correct branch (`walkthrough`). You can do this by running the following command in your terminal or command prompt:
+First, you need to clone the repository from GitHub
 
 ```bash
-git clone -b walkthrough https://github.com/akhayoon/workshop-renderatl-final.git
+git clone https://github.com/akhayoon/workshop-renderatl-final.git
 ```
 
 ### 2. Install dependencies
