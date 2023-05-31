@@ -25,14 +25,13 @@ export default function App() {
     },
   ];
 
-  const handleBannerDismiss = () => {
+  const handleBannerDismiss = useCallback(() => {
     setShowBanner(false);
-  };
+  }, []);
 
-  const handleCloseModal = useCallback(
-    () => setShowCreateCustomerModal(false),
-    [setShowCreateCustomerModal]
-  );
+  const handleCloseModal = useCallback(() => {
+    setShowCreateCustomerModal(false);
+  }, []);
 
   const handleCannotDeletePrimary = useCallback(() => {
     setShowBanner(true);
