@@ -64,10 +64,7 @@ export default function App() {
           <Layout.Section>
             <FooterHelp>
               For more details on Polaris, visit our{" "}
-              <Link url="https://polaris.shopify.com" onClick={() => {}}>
-                style guide
-              </Link>
-              .
+              <Link url="https://polaris.shopify.com">style guide</Link>.
             </FooterHelp>
           </Layout.Section>
         </Layout>
