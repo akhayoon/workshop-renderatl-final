@@ -1,7 +1,5 @@
 import { useCallback } from "react";
-import {
-  Modal,
-} from "@shopify/polaris";
+import { Modal, TextField } from "@shopify/polaris";
 
 interface CreateCustomerModalProps {
   open: boolean;
@@ -9,11 +7,10 @@ interface CreateCustomerModalProps {
 }
 
 export function CreateCustomerModal(props: CreateCustomerModalProps) {
-  const { open, onClose} = props;
+  const { open, onClose } = props;
 
   const closeModal = useCallback(() => {
     onClose();
-
   }, [onClose]);
 
   return (
@@ -32,8 +29,7 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
       ]}
     >
       <Modal.Section>
-        <div>
-        </div>
+        <TextField label="Name" autoComplete="off" />
       </Modal.Section>
     </Modal>
   );
