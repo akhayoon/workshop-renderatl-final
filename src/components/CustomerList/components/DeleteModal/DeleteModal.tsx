@@ -1,4 +1,4 @@
-import { Modal, VerticalStack } from "@shopify/polaris";
+import { Modal, InlineStack } from "@shopify/polaris";
 
 interface Props {
   open: boolean;
@@ -25,9 +25,9 @@ export function DeleteModal({ open, onClose, onConfirm }: Props) {
       ]}
     >
       <Modal.Section>
-        <VerticalStack gap="5">
+        <InlineStack gap="400">
           <p>Are you sure you want to delete this item?</p>
-        </VerticalStack>
+        </InlineStack>
       </Modal.Section>
     </Modal>
   );

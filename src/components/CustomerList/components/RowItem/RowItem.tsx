@@ -1,9 +1,16 @@
-import { ResourceItem, Text, Avatar, Badge, HorizontalStack } from "@shopify/polaris";
-import {Item} from '../../../../types';
+import {
+  ResourceItem,
+  Text,
+  Avatar,
+  Badge,
+  BlockStack,
+  InlineStack,
+} from "@shopify/polaris";
+import { Item } from "../../../../types";
 
 interface Props {
   item: Item;
-  onDeleteItem: (id: string) => void
+  onDeleteItem: (id: string) => void;
 }
 
 export function RowItem({ item, onDeleteItem }: Props) {
@@ -20,7 +27,7 @@ export function RowItem({ item, onDeleteItem }: Props) {
       onAction: handleDeleteButton,
     },
   ];
-  const media = <Avatar customer size="medium" name={name} />;
+  const media = <Avatar customer size="md" name={name} />;
 
   return (
     <ResourceItem
@@ -31,17 +38,15 @@ export function RowItem({ item, onDeleteItem }: Props) {
       media={media}
       shortcutActions={shortcutActions}
     >
-      <HorizontalStack wrap={false} gap="4">
-        <Text variant="bodyMd" fontWeight="bold" as="h3">
-          {name}
-        </Text>
-        {isPrimary && (
-          <Badge status="info" progress="complete">
-            Primary
-          </Badge>
-        )}
-      </HorizontalStack>
-      <div>{location}</div>
+      <BlockStack gap="200">
+        <InlineStack gap="200">
+          <Text variant="bodyMd" fontWeight="bold" as="h3">
+            {name}
+          </Text>
+          {isPrimary && <Badge tone="info">Primary</Badge>}
+        </InlineStack>
+        <div>{location}</div>
+      </BlockStack>
     </ResourceItem>
   );
 }

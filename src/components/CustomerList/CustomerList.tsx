@@ -1,19 +1,18 @@
 import { useContext, useState, useCallback, ReactNode } from "react";
 import { LegacyCard, ResourceList, TextField, Icon } from "@shopify/polaris";
-import { SearchMinor } from "@shopify/polaris-icons";
+import { SearchIcon } from "@shopify/polaris-icons";
 import { RowItem } from "./components/RowItem";
 import { DeleteModal } from "./components/DeleteModal";
 import ItemsContext from "../../context/ItemsContext";
 import { ItemsState } from "../../types";
-import iconWrapper from "../../utilities/iconWrapper"
+import iconWrapper from "../../utilities/iconWrapper";
 
 interface CustomerListProps {
   onCannotDeletePrimary: () => void;
 }
 
 export function CustomerList({ onCannotDeletePrimary }: CustomerListProps) {
-
-  const { items, removeItem } = useContext(ItemsContext) as ItemsState;;
+  const { items, removeItem } = useContext(ItemsContext) as ItemsState;
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState<string>("");
 
@@ -28,7 +27,7 @@ export function CustomerList({ onCannotDeletePrimary }: CustomerListProps) {
       onChange={handleSearch}
       value={searchValue}
       autoComplete="off"
-      prefix={<Icon source={iconWrapper(SearchMinor)} />}
+      prefix={<Icon source={iconWrapper(SearchIcon)} />}
     />
   );
 
@@ -38,9 +37,11 @@ export function CustomerList({ onCannotDeletePrimary }: CustomerListProps) {
 
   const handleDeleteConfirm = useCallback(() => {
     if (deleteItemId) {
-      const itemToDelete = items.find(item => item.id === deleteItemId);
+      const itemToDelete = items.find((item) => item.id === deleteItemId);
 
-      itemToDelete?.isPrimary ? onCannotDeletePrimary() : removeItem(deleteItemId);
+      itemToDelete?.isPrimary
+        ? onCannotDeletePrimary()
+        : removeItem(deleteItemId);
     }
     setDeleteItemId(null);
   }, [deleteItemId, removeItem]);
@@ -60,7 +61,11 @@ export function CustomerList({ onCannotDeletePrimary }: CustomerListProps) {
           resourceName={{ singular: "customer", plural: "customers" }}
           items={filteredItems}
           renderItem={(item) => (
-            <RowItem item={item} onDeleteItem={handleDeleteClick} key={item.id} />
+            <RowItem
+              item={item}
+              onDeleteItem={handleDeleteClick}
+              key={item.id}
+            />
           )}
           filterControl={filterControl}
         />

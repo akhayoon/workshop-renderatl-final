@@ -1,16 +1,11 @@
 import "./styles.css";
 import React, { useState, useCallback } from "react";
-import {
-  Layout,
-  Page,
-  FooterHelp,
-  Banner,
-} from "@shopify/polaris";
-import { GlobeMajor } from "@shopify/polaris-icons";
+import { Layout, Page, FooterHelp, Banner } from "@shopify/polaris";
+import { GlobeIcon } from "@shopify/polaris-icons";
 import { CreateCustomerModal } from "./components/CreateCustomerModal";
 import { CustomerList } from "./components/CustomerList";
 import { ItemsProvider } from "./context/ItemsContext";
-import iconWrapper from "./utilities/iconWrapper"
+import iconWrapper from "./utilities/iconWrapper";
 
 export default function App() {
   const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
@@ -24,7 +19,7 @@ export default function App() {
   const secondaryActions = [
     {
       content: "Explore",
-      icon: iconWrapper(GlobeMajor),
+      icon: iconWrapper(GlobeIcon),
       url: "https://apps.shopify.com/collections/pixels",
       external: true,
     },
@@ -55,7 +50,7 @@ export default function App() {
             {showBanner && (
               <Banner
                 title="This record cannot be deleted"
-                status="critical"
+                tone="critical"
                 onDismiss={handleBannerDismiss}
               >
                 <p>Make sure you know how these changes affect your store.</p>
